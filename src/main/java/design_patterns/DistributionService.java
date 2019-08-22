@@ -7,8 +7,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 
@@ -20,24 +18,26 @@ public class DistributionService {
         Reflections scanner = new Reflections("design_patterns");
         Set<Class<? extends MailGenerator>> set = scanner.getSubTypesOf(MailGenerator.class);
 
-        set.stream().filter(aClass -> !Modifier.isAbstract(aClass.getModifiers()))
+        map = set.stream().filter(aClass -> !Modifier.isAbstract(aClass.getModifiers()))
                 .filter(aClass -> aClass.isAnnotationPresent(TemplateCode.class))
-                .collect(G)
+                .collect(toMap(DistributionService::getCode,
+                        DistributionService::getGenerator,
+                        DistributionService::resolve));
 
+    }
 
+    private static <U> U resolve(U u, U u1) {
+        throw new IllegalStateException(u1 + " already in use");
+    }
 
+    @SneakyThrows
+    private static int getCode(Class<? extends MailGenerator> aClass) {
+        return aClass.getAnnotation(TemplateCode.class).value();
+    }
 
-        for (Class<? extends MailGenerator> aClass : set) {
-            if (!Modifier.isAbstract(aClass.getModifiers())) {
-                TemplateCode annotation = aClass.getAnnotation(TemplateCode.class);
-                int mailCode = annotation.value();
-                MailGenerator mailGenerator = aClass.getDeclaredConstructor().newInstance();
-                if (map.containsKey(mailCode)) {
-                    throw new IllegalStateException(mailCode + " already in use");
-                }
-                map.put(mailCode, mailGenerator);
-            }
-        }
+    @SneakyThrows
+    private static MailGenerator getGenerator(Class<? extends MailGenerator> aClass) {
+        return aClass.getDeclaredConstructor().newInstance();
     }
 
     public void sendMail() {
