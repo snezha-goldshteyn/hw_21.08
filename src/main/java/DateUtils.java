@@ -1,3 +1,4 @@
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -24,6 +25,6 @@ public class DateUtils {
     }
 
     private static boolean isFridayThirteen (LocalDate date) {
-        return date.getDayOfWeek().getDisplayName(TextStyle.NARROW, Locale.ENGLISH).equalsIgnoreCase("f");
+        return date.getDayOfWeek()==DayOfWeek.FRIDAY;
     }
 }

@@ -23,7 +23,6 @@ public class DistributionService {
                 .collect(toMap(DistributionService::getCode,
                         DistributionService::getGenerator,
                         DistributionService::resolve));
-
     }
 
     private static <U> U resolve(U u, U u1) {
